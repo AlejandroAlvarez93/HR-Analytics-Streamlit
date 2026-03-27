@@ -1,55 +1,81 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
-# Configuración de la interfaz
-st.set_page_config(page_title="HR Analytics Dashboard | Alejandro Álvarez", layout="wide")
-
-st.title("📊 HR Talent Retention & Development Dashboard")
-st.markdown("""
-This dashboard analyzes the correlation between **Professional Development** and **Employee Retention**, 
-supporting data-driven decisions in People Analytics.
-""")
-
-# Generación de Dataset Ficticio robusto (exactamente 100 registros)
+import plotly.graph_objects as go
 import numpy as np
 
-count = 100
-data = {
-    'Employee_ID': range(1, count + 1),
-    'Department': np.random.choice(['Sales', 'IT', 'HR', 'Marketing'], count),
-    'Years_Experience': np.random.randint(1, 15, count),
-    'Training_Hours': np.random.randint(5, 60, count),
-    'Left_Company': np.random.choice([0, 1], count, p=[0.7, 0.3]) # 70% se queda, 30% se va
-}
-df = pd.DataFrame(data)
+# Configuración profesional
+st.set_page_config(page_title="Executive People Analytics Dashboard", layout="wide")
 
-# Sidebar para filtros
-st.sidebar.header("Data Filters")
-selected_dept = st.sidebar.multiselect("Select Department", df['Department'].unique(), default=df['Department'].unique())
-filtered_df = df[df['Department'].isin(selected_dept)]
+@st.cache_data
+def load_data():
+    np.random.seed(42)
+    count = 500
+    depts = ['Sales', 'IT', 'HR', 'Marketing', 'Operations', 'Finance']
+    
+    data = {
+        'Employee_ID': range(1, count + 1),
+        'Department': np.random.choice(depts, count),
+        'Age': np.random.randint(22, 60, count),
+        'Gender': np.random.choice(['F', 'M', 'Non-binary'], count, p=[0.48, 0.48, 0.04]),
+        'Tenure_Years': np.random.uniform(0.5, 15, count).round(1),
+        'Satisfac_Level': np.random.uniform(1, 5, count).round(1),
+        'Last_Performance_Score': np.random.randint(1, 6, count),
+        'Training_Hours': np.random.randint(10, 100, count),
+        'Salary_K': np.random.randint(30, 120, count),
+        'Left_Company': np.random.choice([0, 1], count, p=[0.82, 0.18])
+    }
+    return pd.DataFrame(data)
 
-# Métricas Principales
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Total Employees", len(filtered_df))
-with col2:
-    turnover = (filtered_df['Left_Company'].mean() * 100)
-    st.metric("Turnover Rate", f"{turnover:.1f}%")
-with col3:
-    avg_training = filtered_df['Training_Hours'].mean()
-    st.metric("Avg. Training Hours", f"{avg_training:.1f}h")
+df = load_data()
+
+# --- SIDEBAR ---
+st.sidebar.header("🎯 Talent Strategy Filters")
+dept_filter = st.sidebar.multiselect("Department", df['Department'].unique(), default=df['Department'].unique())
+filtered_df = df[df['Department'].isin(dept_filter)]
+
+# --- HEADER ---
+st.title("🚀 Executive People Analytics Dashboard")
+st.markdown("### Strategic Insight: Talent Retention & Performance Correlation")
+
+# --- METRICS ---
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("Total Headcount", len(filtered_df))
+m2.metric("Turnover Rate", f"{(filtered_df['Left_Company'].mean()*100):.1f}%")
+m3.metric("Avg Performance", f"{filtered_df['Last_Performance_Score'].mean():.1f}/5")
+m4.metric("Avg Salary", f"${filtered_df['Salary_K'].mean():.1f}K")
 
 st.divider()
 
-# Gráfico de Correlación (Punto clave de tu CV) [cite: 14]
-st.subheader("Analysis: Training Hours vs. Retention")
-fig = px.box(filtered_df, x="Left_Company", y="Training_Hours", 
-             color="Left_Company",
-             labels={"Left_Company": "Stayed (0) vs Left (1)", "Training_Hours": "Hours of Training"},
-             color_discrete_map={0: "#2ecc71", 1: "#e74c3c"},
-             points="all")
+# --- VISUALIZATIONS ---
+col_left, col_right = st.columns(2)
 
-st.plotly_chart(fig, use_container_width=True)
+with col_left:
+    st.subheader("Training vs. Performance (ROI)")
+    # Gráfico de burbujas para ver 3 dimensiones: Horas, Desempeño y Salario
+    fig1 = px.scatter(filtered_df, x="Training_Hours", y="Last_Performance_Score", 
+                     size="Salary_K", color="Department", hover_name="Employee_ID",
+                     trendline="ols", # Línea de tendencia (IA/Estadística)
+                     title="Impact of Training on Employee Performance")
+    st.plotly_chart(fig1, use_container_width=True)
 
-st.info("💡 **Insight:** This visualization demonstrates how employees with more training hours tend to have higher retention rates.")
+with col_right:
+    st.subheader("Satisfaction & Attrition Analysis")
+    # Histograma para ver la distribución de satisfacción entre los que se van y se quedan
+    fig2 = px.histogram(filtered_df, x="Satisfac_Level", color="Left_Company", 
+                       marginal="rug", barmode="overlay",
+                       labels={"Left_Company": "Attrition (1=Yes)"},
+                       title="Employee Satisfaction Distribution")
+    st.plotly_chart(fig2, use_container_width=True)
+
+st.divider()
+
+# --- ADVANCED: CORRELATION HEATMAP ---
+st.subheader("🔗 Feature Correlation Matrix")
+corr = df[['Age', 'Tenure_Years', 'Satisfac_Level', 'Last_Performance_Score', 'Training_Hours', 'Salary_K', 'Left_Company']].corr()
+fig3 = px.imshow(corr, text_auto=True, aspect="auto", 
+                color_continuous_scale='RdBu_r', 
+                title="Identifying Key Drivers of Turnover")
+st.plotly_chart(fig3, use_container_width=True)
+
+st.info("**Data Scientist Note:** The heatmap above uses Pearson correlation to identify which variables (like Satisfaction or Salary) are most strongly linked to an employee leaving the company.")
