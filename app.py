@@ -11,13 +11,16 @@ This dashboard analyzes the correlation between **Professional Development** and
 supporting data-driven decisions in People Analytics.
 """)
 
-# Generación de Dataset Ficticio basado en tu proyecto de CV [cite: 14]
+# Generación de Dataset Ficticio robusto (exactamente 100 registros)
+import numpy as np
+
+count = 100
 data = {
-    'Employee_ID': range(1, 101),
-    'Department': ['Sales', 'IT', 'HR', 'Marketing'] * 25,
-    'Years_Experience': [2, 5, 1, 10, 3, 8, 4, 6] * 12 + [5, 2],
-    'Training_Hours': [10, 40, 5, 50, 20, 35, 15, 45] * 12 + [30, 10],
-    'Left_Company': [1, 0, 1, 0, 0, 0, 1, 0] * 12 + [0, 1] 
+    'Employee_ID': range(1, count + 1),
+    'Department': np.random.choice(['Sales', 'IT', 'HR', 'Marketing'], count),
+    'Years_Experience': np.random.randint(1, 15, count),
+    'Training_Hours': np.random.randint(5, 60, count),
+    'Left_Company': np.random.choice([0, 1], count, p=[0.7, 0.3]) # 70% se queda, 30% se va
 }
 df = pd.DataFrame(data)
 
