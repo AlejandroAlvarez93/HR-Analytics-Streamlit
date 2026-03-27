@@ -5,15 +5,15 @@ This interactive web application was developed to help HR departments identify t
 
 Key Features
 
-Dynamic KPI Dashboard: Real-time visualization of Turnover Rate, Total Headcount, and Average Training Hours.
-Predictive Analysis: Uses data-driven insights to show how investment in employee training impacts the probability of an employee staying at the company.
-Segmented Filtering: Interactive sidebar to filter metrics by Department, allowing for granular analysis of organizational health.
-Data-to-Action: Designed to support strategic business decisions by identifying departments at high risk of talent flight.
+- Dynamic KPI Dashboard: Real-time visualization of Turnover Rate, Total Headcount, and Average Training Hours.
+- Predictive Analysis: Uses data-driven insights to show how investment in employee training impacts the probability of an employee staying at the company.
+- Segmented Filtering: Interactive sidebar to filter metrics by Department, allowing for granular analysis of organizational health.
+- Data-to-Action: Designed to support strategic business decisions by identifying departments at high risk of talent flight.
 
 Tech Stack
-Language: Python.
-Libraries: Pandas for data manipulation, Plotly for interactive visualizations, and Streamlit for web deployment.
-Methodology: Exploratory Data Analysis (EDA) and Behavioral Clustering.
+- Language: Python.
+- Libraries: Pandas for data manipulation, Plotly for interactive visualizations, and Streamlit for web deployment.
+- Methodology: Exploratory Data Analysis (EDA) and Behavioral Clustering.
 
 How to Use
 
